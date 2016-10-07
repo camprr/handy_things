@@ -1,0 +1,31 @@
+Doing a query to find the number of data nodes, finding all indexes, and setting the number of replica's in the index.
+
+Node attributes:
+curl 172.31.0.225:9200/_cat/nodeattrs
+
+Am I the active master?
+ifconfig | grep `curl $HOSTNAME:9200/_cat/master 2>/dev/null|cut -f3 -d" "` 1>/dev/null ||
+
+Finding number of data nodes:
+curl $HOSTNAME:9200/_cluster/health?pretty=true 2>/dev/null  |grep number_of_data_nodes |awk '{print $3}' |cut -f1 -d","
+
+Finding indexes:
+`curl $HOSTNAME:9200/_cat/indices 2>/dev/null| awk '{print $3}'`
+
+Number of indexes:
+`curl $HOSTNAME:9200/_cat/indices 2>/dev/null| awk '{print $3}' |wc -l`
+
+#!/bin/bash
+data_nodes=`curl $HOSTNAME:9200/_cluster/health?pretty=true 2>/dev/null  | grep number_of_data_nodes |awk '{print $3}' |cut -f1 -d","`
+replicas=`expr $data_nodes - 1`
+master_ip=`curl $HOSTNAME:9200/_cat/master 2>/dev/null| cut -f3 -d" "`
+
+if `ifconfig | grep $master_ip 1>/dev/null` ; then
+        for i in `curl $HOSTNAME:9200/_cat/indices 2>/dev/null| awk '{print $3}'` ; do
+            echo "Changing index $i:"
+            curl_statement="{\"number_of_replicas\":\"$replicas\"}"
+            echo $curl_statement
+            curl -H "Content-Type: application/json" -XPUT $HOSTNAME:9200/$i/_settings -d $curl_statement
+            echo
+        done
+fi
