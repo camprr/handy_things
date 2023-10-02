@@ -1,0 +1,96 @@
+docker run -d -ti \
+    -v /root/tdarr/server:/app/server \
+    -v /root/tdarr/configs:/app/configs \
+    -v /root/tdarr/logs:/app/logs \
+    -v /mnt/sda/Movies:/app/Movies \
+    -v /mnt/sda/Series:/app/Series \
+    -v /root/transcode_cache:/temp \
+    -e "serverIP=0.0.0.0" \
+    -e "serverPort=8266" \
+    -e "webUIPort=8265" \
+    --network bridge \
+    -p 8265:8265 \
+    -p 8266:8266 \
+    -e "TZ=Europe/Amsterdam" \
+    -e PUID=1000 \
+    -e PGID=1000 \
+    --log-opt max-size=10m \
+    --log-opt max-file=5 \
+    ghcr.io/haveagitgat/tdarr:2.11.01
+
+docker run -d -ti \
+   -e "NVIDIA_DRIVER_CAPABILITIES=all" \
+    -e "NVIDIA_VISIBLE_DEVICES=all" \
+    --gpus=all \
+    --device=/dev/dri:/dev/dri \
+    -v /home/campr/docker/server:/app/server \
+    -v /home/campr/docker/configs:/app/configs \
+    -v /home/campr/docker/logs:/app/logs \
+    -v /mnt/sda/Movies:/app/Movies \
+    -v /mnt/sda/Series:/app/Series \
+    -v /home/campr/docker/transcode_cache:/temp \
+    -e "nodeName=MyExternalNode" \
+    -e "serverIP=192.168.1.52" \
+    -e "serverPort=8266" \
+    -e "inContainer=true" \
+    --network bridge \
+    -e "TZ=Europe/Amsterdam" \
+    -e PUID=1000 \
+    -e PGID=1000 \
+    --log-opt max-size=10m \
+    --log-opt max-file=5 \
+    ghcr.io/haveagitgat/tdarr_node:latest
+
+docker run -d -ti \
+   -e "NVIDIA_DRIVER_CAPABILITIES=all" \
+    -e "NVIDIA_VISIBLE_DEVICES=all" \
+    --device=/dev/dri:/dev/dri \
+    --gpus=all \
+    --privileged \
+    -v /home/campr/docker/tdarr_node/server:/app/server \
+    -v /home/campr/docker/tdarr_node/configs:/app/configs \
+    -v /home/campr/docker/tdarr_node/logs:/app/logs \
+    -v /mnt/sda/Movies:/app/Movies \
+    -v /mnt/sda/Series:/app/Series \
+    -e "nodeName=MyExternalNode3" \
+    -e "serverIP=192.168.1.52" \
+    -e "serverPort=8266" \
+    -e "inContainer=true" \
+    -e "internalNode=true" \
+    --network bridge \
+    -e "TZ=Europe/Amsterdam" \
+    -e PUID=1000 \
+    -e PGID=1000 \
+    --log-opt max-size=10m \
+    --log-opt max-file=5 \
+    ghcr.io/haveagitgat/tdarr_node:latest
+
+
+
+
+
+    -p 8268:8268 \
+    --gpus=all \
+
+
+docker run -ti \
+    -v /docker/tdarr/configs:/app/configs \
+    -v /docker/tdarr/logs:/app/logs \
+    -v /media:/media \
+    -v /transcode_cache:/temp \
+    -e "nodeName=MyExternalNode" \
+    -e "serverIP=0.0.0.0" \
+    -e "serverPort=8266" \
+    -e "inContainer=true" \
+    --network bridge \
+    -p 8268:8268 \
+    -e "TZ=Europe/London" \
+    -e PUID=1000 \
+    -e PGID=1000 \
+    -e "NVIDIA_DRIVER_CAPABILITIES=all" \
+    -e "NVIDIA_VISIBLE_DEVICES=all" \
+    --gpus=all \
+    --device=/dev/dri:/dev/dri \
+    --log-opt max-size=10m \
+    --log-opt max-file=5 \
+    ghcr.io/haveagitgat/tdarr_node
